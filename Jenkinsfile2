@@ -3,6 +3,28 @@ pipeline{
   agent any
 
   stages{
+     stage("Maven Build"){
+
+        steps{
+             checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Cyrilflair/javalogin.git']]])
+
+           
+             }
+
+            }
+stage("Maven Build"){
+
+        steps{
+
+            sh "mvn -B -DskipTests clean package"
+
+            sh "mv target/*.war target/myweb.war"
+
+             }
+
+            }
+  
+    
 
       stage("Maven Build"){
 
