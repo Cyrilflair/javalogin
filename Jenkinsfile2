@@ -1,24 +1,33 @@
-stages {
-    stage('Scan Code') {
-      steps{
-        withSonarQubeEnv('Sonar') {
-          sh "mvn sonar:sonar"
+pipeline{
+  agent any
+  stages{
+      stage("Scan"){
+        steps{
+         withSonarQubeEnv(installationName: 'Sonar', credentialsId: 'SonarqubeToken'){
+         sh "mvn sonar:sonar"
+         }
         }
       }
-    }
-    
-    stage('Build') {
-      steps {
-        sh '"mvn" -Dmaven.test.failure.ignore clean install'
-      }
-    }
-    stage('Test') {
-      steps {
-        sh '"mvn" -Dmaven.test.failure.ignore test'
+      stage("Build"){
+        steps{
+            sh "mvn -B -DskipTests clean package"
+            sh "mv target/*.war target/myweb.war"
+             }
+            }
+      stage('Test') {
+        steps {
+        sh(script: 'mvn -Dmaven.test.failure.ignore test')
       }
       post {
-        always{
-          junit '**/target/surefire-reports/TEST-*.xml'
+        always {
+            junit '**/target/surefire-reports/TEST-*.xml'
+             }
+           }
+      }
+      stage("deploy"){
+       steps{
+          deploy adapters: [tomcat8(credentialsId: 'tomcat-credentials', path: '', url: 'http://13.212.169.36:9000')], contextPath: 'null', war: '**/*.war'          
+          }
         }
       }
     }
