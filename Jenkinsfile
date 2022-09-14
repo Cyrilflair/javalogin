@@ -1,56 +1,27 @@
 pipeline{
-
   agent any
-
   stages{
-
-      stage("Scan"){
-
+		stage("Maven Build"){
         steps{
-
-         withSonarQubeEnv('sonarqube') {
-
-         sh "mvn clean package sonar:sonar"
-
-         }
-
-        }
-
-      }
-
-      stage("Build"){
-
-        steps{
-
-            sh '"mvn" -Dmaven.test.failure.ignore clean install'
-
+            sh "mvn -B -DskipTests clean package"
+            sh "mv target/*.war target/myweb.war"
              }
-
             }
-
-      stage('Test') {
-
-        steps {
-
-          sh 'mvn test'
-
-      }
-
-      post {
-
-        always {
-
-            junit '**/target/surefire-reports/TEST-*.xml'
-
+		stage("Docker Build"){
+		steps{
+			script{
+				app = docker.build("app:${env.BUILD_NUMBER}")
+                }
              }
-
-           }
-
-      }
-      stage("deploy"){
-       steps{
-          deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://13.212.169.36:8080/')], contextPath: null, war: '**/*.war'          
           }
-        }
-      }
-    }
+		stage("Docker Push"){
+		steps{
+			script{
+				docker.withRegistry('https://083986437940.dkr.ecr.ap-southeast-1.amazonaws.com', 'ecr:ap-southeast-1:aws-id') {
+				app.push("${env.BUILD_NUMBER}")
+				}
+			 }
+		  }
+		  }
+		  }
+		  
