@@ -34,7 +34,7 @@ pipeline {
        stage("Deploy to EKS"){
             steps{
                 sh 'aws eks update-kubeconfig --name demo-eks --region ap-southeast-1'
-              sh '/root/bin/kubectl apply -f deployment.yml'
+              sh '/home/ubuntu/bin/kubectl apply -f deployment.yml'
         }
     }
   }
