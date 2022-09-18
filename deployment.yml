@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-app
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+        - name: pipeline3
+          image: 083986437940.dkr.ecr.ap-southeast-1.amazonaws.com/pipeline3
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: web-app
