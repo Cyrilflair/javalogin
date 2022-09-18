@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: pipeline3
-          image: 083986437940.dkr.ecr.ap-southeast-1.amazonaws.com/pipeline3
+          image: 083986437940.dkr.ecr.ap-southeast-1.amazonaws.com/pipeline3:latest
           ports:
             - containerPort: 8080
           env:
